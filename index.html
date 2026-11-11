@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Moving a Confluence space to Markdown: what breaks and how to keep it</title>
+<meta name="description" content="A migration guide for moving Confluence pages to Markdown docs: code macros, info panels, task lists, page links and attachments, with a page-by-page checklist.">
+<meta name="robots" content="index,follow">
+<style>body{font:16px/1.6 -apple-system,Segoe UI,Helvetica,Arial,sans-serif;max-width:760px;margin:0 auto;padding:32px 20px;color:#1f2328}header{border-bottom:1px solid #d0d7de;margin-bottom:24px}h1{font-size:28px}h2{border-bottom:1px solid #eaeef2;padding-bottom:4px;margin-top:28px}code{background:#eff1f3;padding:2px 5px;border-radius:4px;font-size:90%}pre{background:#f6f8fa;padding:14px;border-radius:6px;overflow:auto}table{border-collapse:collapse;margin:12px 0}td,th{border:1px solid #d0d7de;padding:6px 12px}a{color:#0969da}footer{margin-top:40px;color:#59636e;font-size:14px}</style></head>
+<body><header><h1>Moving a Confluence space to Markdown: what breaks and how to keep it</h1></header>
+<main>
+<p>Teams leave Confluence for docs-as-code, an internal wiki on Git, Notion or Obsidian, and nearly every migration hits the same wall. Confluence pages look like HTML, but the important parts are Confluence's own XML macros. Run a page through a generic HTML-to-Markdown converter and the code blocks, info panels and task lists vanish without a warning. This guide covers what to map and in what order.</p>
+<h2>Get the right source: storage format</h2>
+<p>Don't copy the rendered page. Open the page's <em>storage format</em> (… menu → View storage format, or the REST API <code>body.storage</code>). That XHTML still has the macros as elements such as <code>&lt;ac:structured-macro ac:name="code"&gt;</code>, which a converter can map on purpose.</p>
+<h2>What needs explicit mapping</h2>
+<table>
+<tr><th>Confluence element</th><th>Markdown target</th></tr>
+<tr><td>Code macro (with language)</td><td>Fenced code block with the language tag</td></tr>
+<tr><td>Info / note / warning panels</td><td>Blockquote with a bold label, or GitHub <code>&gt; [!NOTE]</code> alerts</td></tr>
+<tr><td>Task lists</td><td><code>- [ ]</code> / <code>- [x]</code></td></tr>
+<tr><td>Page links (<code>ri:page</code>)</td><td>Relative links to the new file paths</td></tr>
+<tr><td>Attachments / images</td><td>Downloaded files in an <code>assets/</code> folder</td></tr>
+</table>
+<p>The <a href="https://dochost.io/confluence-to-markdown">dochost Confluence to Markdown converter</a> maps code macros, info panels and task lists before it converts, so they come out as fenced code, blockquotes and checkboxes instead of disappearing. It runs in the browser.</p>
+<h2>A page-by-page checklist</h2>
+<ol>
+<li>Export the storage format of the page.</li>
+<li>Convert it and save it as <code>section/page-title.md</code>, with a slug that matches the old title.</li>
+<li>Search the output for macros the converter didn't recognize (<code>ac:</code> leftovers): Jira issue lists, include-page and excerpt macros.</li>
+<li>Rewrite page links to relative paths. Keep a mapping CSV of old page ID → new path for redirects.</li>
+<li>Download the attachments and fix the image paths.</li>
+<li>Diff it visually against the original before you archive the Confluence page.</li>
+</ol>
+<h2>Macros you should rebuild, not convert</h2>
+<ul>
+<li><strong>Jira issue macros</strong>: replace them with a link to a saved Jira filter.</li>
+<li><strong>Include page / excerpt include</strong>: use your docs tool's own include feature, or duplicate the text on purpose.</li>
+<li><strong>Page tree / children display</strong>: generate it from the folder structure.</li>
+</ul>
+<h2>If the destination is Notion</h2>
+<p>Markdown is a good intermediate format even when the final home is Notion. Convert the Confluence page to Markdown, clean it up, then use <a href="https://dochost.io/markdown-to-notion">Markdown to Notion</a> so the paste lands as real Notion blocks instead of one long text block.</p>
+</main>
+<footer>Practical notes on document formats. Last updated November 2026. Tools mentioned are free browser tools from dochost.</footer>
+</body></html>
